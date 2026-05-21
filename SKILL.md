@@ -67,6 +67,19 @@ effect(() => {
   document.getElementById('counter-btn').textContent = `Count: ${count.value}`;
 });
 
+// ⚠️ CRITICAL REACTIVITY GOTCHA FOR DYNAMIC DOM:
+// If the target DOM element is rendered dynamically (e.g. inside pages/*.html fetched at runtime),
+// you MUST read the signal value at the very beginning of the effect callback.
+// If you check for the DOM element first and return early, Preact will NOT register the signal dependency,
+// and subsequent mutations to the signal value will fail to re-trigger the effect!
+effect(() => {
+  const val = count.value; // ★ Read signal value first to register subscription!
+  const el = document.getElementById('dynamic-counter-text');
+  if (el) {
+    el.textContent = `Count: ${val}`;
+  }
+});
+
 // Mutate state directly
 document.getElementById('counter-btn').addEventListener('click', () => {
   count.value++;
@@ -110,7 +123,9 @@ export function loadScript(src, id, onLoad) {
 async function renderPage(pageId) {
   // 1. Fetch & inject template if not cached
   if (!loadedPages.has(pageId)) {
-    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    // Note: Always use absolute paths (leading '/') to fetch templates to prevent relative path resolution 
+    // nesting bugs when handling deep SPA routing paths.
+    const html = await fetch(`/pages/${pageId}.html`).then(r => r.text());
     document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
     loadedPages.add(pageId);
   }
@@ -130,7 +145,30 @@ async function renderPage(pageId) {
 
 ---
 
-## 5. Instructions for Coding
+## 5. Local Server Configurations (SPA Fallbacks)
+
+When serving a zero-build Lite-SPA, you must ensure your server correctly falls back to `index.html` on refresh without interfering with dynamic HTML template fetches.
+
+### 5.1 Vercel `serve` (`npx serve -s`)
+Vercel's `serve` features **Clean URLs** by default, which strips `.html` extensions and redirects requests. This conflicts with dynamic page fetches (fetching `/pages/home.html` gets redirected to `/pages/home`, which then falls back to `index.html` in SPA mode, causing infinite HTML nesting).
+- **Rule**: Always create a `serve.json` in the root of the project to disable clean URLs:
+  ```json
+  {
+    "cleanUrls": false
+  }
+  ```
+
+### 5.2 Nginx Configuration
+Use `try_files` to serve files/directories, falling back to `/index.html`:
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+---
+
+## 6. Instructions for Coding
 
 1. **Keep HTML template wrapper clean**: Page templates in `pages/*.html` must be wrapped in a container like `<div id="page-[name]" class="page-view hidden">`.
 2. **Never hardcode paths**: Always use relative paths when importing modules.

@@ -7,7 +7,7 @@ const loadedPages = new Set();
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    const html = await fetch(`/pages/${pageId}.html`).then(r => r.text());
     document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
     loadedPages.add(pageId);
 }

@@ -38,7 +38,7 @@ function loadScript(src) {
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    const html = await fetch(`/pages/${pageId}.html`).then(r => r.text());
     document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
     
     // (Optional) Load page-specific CSS on demand if you create pages/[pageId].css
