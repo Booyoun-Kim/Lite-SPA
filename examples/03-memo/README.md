@@ -12,6 +12,25 @@ This example guides you step-by-step through adding a new page, managing state u
 
 ## 🛠️ Step-by-Step Implementation
 
+### Step 0: Copy the Project Template (Preparation)
+
+Before starting to build the new feature, copy the `template/` folder, which serves as the foundational skeleton of Lite-SPA, to create your own working directory.
+
+1. Copy all files and folders inside the `template/` directory of this repository into a new folder (e.g., `memo`).
+2. Verify that your new folder structure looks like this:
+   ```
+   📁 memo/
+   ├── index.html       (App shell frame)
+   ├── app.js           (Routing and core business logic)
+   ├── store.js         (Global state declarations)
+   ├── i18n.js          (Translation dictionary)
+   └── 📁 pages/        (Individual HTML page fragments)
+       ├── home.html
+       └── about.html
+   ```
+
+---
+
 ### Step 1: Create the Page View (`pages/memo.html`)
 
 Create a new file `pages/memo.html` and define the UI markup:
