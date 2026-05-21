@@ -63,6 +63,8 @@ template/
 | Example | What it demonstrates | Live |
 |---|---|---|
 | [01-counter](examples/01-counter/) | Signal basics, shared state across pages | [Open](examples/01-counter/index.html) |
+| [02-todo](examples/02-todo/) | Complex state using Signals, state persistence (localStorage) | [Open](examples/02-todo/index.html) |
+
 
 ---
 

@@ -1,0 +1,50 @@
+<div id="page-home" class="page-view">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-gray-900 mb-1">Task Manager</h1>
+        <p class="text-sm text-gray-500">Easily manage your daily tasks. State is persisted in LocalStorage.</p>
+    </div>
+
+    <!-- Todo Form -->
+    <form onsubmit="addTodo(event)" class="flex gap-2 mb-6">
+        <input type="text" id="todo-input" autocomplete="off" placeholder="What needs to be done?" required 
+            class="flex-grow px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm">
+        <button type="submit" 
+            class="px-5 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
+            Add
+        </button>
+    </form>
+
+    <!-- Filters & Actions Header -->
+    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+        <div class="flex gap-1.5">
+            <button onclick="setFilter('all')" data-filter="all" 
+                class="px-3 py-1.5 text-xs font-bold bg-blue-500 text-white rounded-md shadow-sm transition-all">
+                All
+            </button>
+            <button onclick="setFilter('active')" data-filter="active" 
+                class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-all">
+                Active
+            </button>
+            <button onclick="setFilter('completed')" data-filter="completed" 
+                class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-all">
+                Completed
+            </button>
+        </div>
+        
+        <button onclick="clearCompleted()" 
+            class="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 px-2 py-1.5 rounded-md font-semibold transition-colors">
+            Clear Completed
+        </button>
+    </div>
+
+    <!-- Todo List -->
+    <ul id="todo-list" class="space-y-1 mb-6">
+        <!-- Rendered dynamically in app.js -->
+    </ul>
+
+    <!-- Footer Stats -->
+    <div class="flex justify-between items-center bg-gray-50 px-4 py-3 rounded-lg border border-gray-100">
+        <span id="active-count" class="text-xs text-gray-500 font-bold uppercase tracking-wider">0 items left</span>
+        <span class="text-xs text-gray-400 font-medium">Click checkboxes to toggle completion.</span>
+    </div>
+</div>

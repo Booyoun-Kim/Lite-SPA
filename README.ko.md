@@ -63,6 +63,8 @@ template/
 | 예제 | 핵심 시연 내용 | 라이브 데모 |
 |---|---|---|
 | [01-counter](examples/01-counter/) | 시그널 기초, 여러 페이지 간의 상태 공유 | [열기](examples/01-counter/index.html) |
+| [02-todo](examples/02-todo/) | 시그널 기반 복잡한 상태 관리, 로컬 저장소(localStorage) 연동 및 상태 영속화 | [열기](examples/02-todo/index.html) |
+
 
 ---
 
