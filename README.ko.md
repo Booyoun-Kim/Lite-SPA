@@ -3,7 +3,7 @@
 > 빌드 도구와 npm이 없는 Vanilla JS SPA 아키텍처. 의존성 크기 약 3KB.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
-[![Dependencies](https://img.shields.io/badge/dependencies-~3KB-black)]()
+[![Dependencies](https://img.shields.io/badge/dependencies-~3KB-black)](#기술-스택-stack)
 
 [English](README.md) | [한국어](README.ko.md)
 

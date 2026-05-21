@@ -3,7 +3,7 @@
 > Vanilla JS SPA architecture. No build tools. No npm. ~3KB of dependencies.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
-[![Dependencies](https://img.shields.io/badge/dependencies-~3KB-black)]()
+[![Dependencies](https://img.shields.io/badge/dependencies-~3KB-black)](#stack)
 
 [English](README.md) | [한국어](README.ko.md)
 
