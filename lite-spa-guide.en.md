@@ -78,23 +78,23 @@ my-app/
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Lite-SPA</title>
 
-    <!-- Styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- DOMPurify CDN for XSS protection -->
-    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
-
     <!-- Prevent FOUC (Flash of Unstyled Content) with Tailwind CDN -->
     <style>
         body { opacity: 0; transition: opacity 0.15s ease-in; }
         body.tailwind-ready { opacity: 1; }
     </style>
     <script>
-        window.tailwind = {
-            ready: () => document.body.classList.add('tailwind-ready')
-        };
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = window.tailwind.config || {};
+        window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
         setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
     </script>
+
+    <!-- Styling (Tailwind CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- DOMPurify CDN for XSS protection -->
+    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
 
     <!-- State management: expose signals-core to window.Signals -->
     <script type="module">
@@ -842,7 +842,15 @@ An excellent question! Lite-SPA handles this risk by default by embedding **DOMP
 ### Q. How can I fix FOUC (Flash of Unstyled Content) when using the Tailwind Play CDN?
 
 Because the Tailwind compiler operates at runtime, unstyled raw HTML might flash on the screen briefly before styles kick in.
-* **Solution**: In `index.html`, set the initial opacity of the body to `body { opacity: 0; }`. Then, use Tailwind's `ready()` callback hook to append a `.tailwind-ready` class (`opacity: 1`) to the body, yielding a smooth fade-in transitions.
+* **Solution**: In `index.html`, **before** calling the Tailwind script, define the `body { opacity: 0; }` style and safely extend `window.tailwind` without overwriting it. Then, use Tailwind's `ready()` callback hook to append a `.tailwind-ready` class (`opacity: 1`) to the body, yielding a smooth fade-in transition.
+  ```html
+  <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = window.tailwind.config || {};
+      window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
+      setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+  </script>
+  ```
 
 ### Q. How do we prevent ID collisions and global CSS pollution in large projects?
 

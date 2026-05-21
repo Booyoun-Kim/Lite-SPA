@@ -78,23 +78,23 @@ my-app/
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Lite-SPA</title>
 
-    <!-- 스타일 -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- XSS 방어용 DOMPurify CDN -->
-    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
-
     <!-- Tailwind FOUC 방지 -->
     <style>
         body { opacity: 0; transition: opacity 0.15s ease-in; }
         body.tailwind-ready { opacity: 1; }
     </style>
     <script>
-        window.tailwind = {
-            ready: () => document.body.classList.add('tailwind-ready')
-        };
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = window.tailwind.config || {};
+        window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
         setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
     </script>
+
+    <!-- 스타일 (Tailwind CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- XSS 방어용 DOMPurify CDN -->
+    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
 
     <!-- 상태 관리: signals-core를 window.Signals에 노출 -->
     <script type="module">
@@ -842,7 +842,15 @@ Lite-SPA는 signals의 **정밀 타겟 업데이트**로 같은 목표를 달성
 ### Q. Tailwind Play CDN을 쓸 때 화면이 깜빡거리는 현상(FOUC)은 어떻게 해결하나요?
 
 Tailwind CDN이 HTML을 분석하고 스타일을 인젝션하기까지 극히 짧은 순간 스타일이 풀려 보이는 현상이 발생할 수 있습니다.
-* **해결법**: `index.html`에 `body { opacity: 0; }` 스타일을 미리 정의해 둔 다음, Tailwind CDN 컴파일 완료 시점인 `window.tailwind.ready` 이벤트 콜백에서 `body`에 `.tailwind-ready` 클래스를 추가하여 `opacity: 1`로 부드럽게 페이드인합니다.
+* **해결법**: `index.html`에서 Tailwind 스크립트를 불러오기 **전**에 `body { opacity: 0; }` 스타일과 함께 `window.tailwind` 설정을 안전하게 확장 정의합니다. 그 후 Tailwind CDN 컴파일 완료 시점인 `window.tailwind.ready` 이벤트 콜백에서 `body`에 `.tailwind-ready` 클래스를 추가하여 `opacity: 1`로 부드럽게 페이드인합니다.
+  ```html
+  <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = window.tailwind.config || {};
+      window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
+      setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+  </script>
+  ```
 
 ### Q. 대규모 프로젝트에서 컴포넌트 간 ID 충돌과 CSS 스타일 오염은 어떻게 방어하나요?
 
