@@ -1,0 +1,39 @@
+<!-- template/pages/memo.html -->
+<div id="page-memo" class="page-view hidden">
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-4">📝 실시간 메모장</h1>
+    <p class="text-gray-600 mb-6">
+        입력한 메모는 전역 상태(Signal)와 로컬 스토리지에 동기화되어 보존됩니다.
+    </p>
+
+    <div class="space-y-4 max-w-md">
+        <!-- 메모 입력창 -->
+        <input
+            id="memo-input"
+            type="text"
+            class="w-full border border-gray-300 p-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="메모를 여기에 입력해보세요..."
+        />
+
+        <!-- 메모 저장 버튼 -->
+        <button
+            id="save-memo-btn"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition"
+        >
+            메모 저장하기
+        </button>
+
+        <!-- 저장된 메모가 출력될 반응형 영역 -->
+        <div class="bg-gray-100 p-4 rounded-lg border border-gray-200 mt-6">
+            <span
+                class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1"
+                >저장된 메모 실시간 동기화</span
+            >
+            <p
+                id="saved-memo-text"
+                class="text-lg text-gray-800 font-medium italic"
+            >
+                (저장된 메모가 없습니다)
+            </p>
+        </div>
+    </div>
+</div>

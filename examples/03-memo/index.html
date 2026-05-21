@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Lite-SPA App</title>
+
+        <!-- Prevent FOUC (Flash of Unstyled Content) with Tailwind CDN -->
+        <style>
+            body {
+                opacity: 0;
+                transition: opacity 0.15s ease-in;
+            }
+            body.tailwind-ready {
+                opacity: 1;
+            }
+        </style>
+        <script>
+            window.tailwind = window.tailwind || {};
+            window.tailwind.config = window.tailwind.config || {};
+            window.tailwind.ready = () => {
+                document.body.classList.add("tailwind-ready");
+            };
+            setTimeout(
+                () => document.body.classList.add("tailwind-ready"),
+                500,
+            );
+        </script>
+
+        <!-- Tailwind CSS (CDN) -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- State management: expose signals-core to window.Signals -->
+        <script type="module">
+            import {
+                signal,
+                computed,
+                effect,
+            } from "https://esm.sh/@preact/signals-core";
+            window.Signals = { signal, computed, effect };
+        </script>
+    </head>
+    <body class="bg-gray-50 min-h-screen flex flex-col font-sans">
+        <!-- Navigation -->
+        <nav class="p-4 bg-white shadow-sm flex gap-4">
+            <button
+                onclick="navigateTo('home')"
+                class="text-blue-500 hover:text-blue-600 font-semibold"
+                data-i18n="nav-home"
+            >
+                Home
+            </button>
+            <button
+                onclick="navigateTo('about')"
+                class="text-blue-500 hover:text-blue-600 font-semibold"
+                data-i18n="nav-about"
+            >
+                About
+            </button>
+            <button
+                onclick="navigateTo('memo')"
+                class="text-blue-500 hover:text-blue-600 font-semibold"
+            >
+                Memo
+            </button>
+            <button
+                onclick="toggleLanguage()"
+                class="ml-auto px-3 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200"
+            >
+                KO / EN
+            </button>
+        </nav>
+
+        <!-- Pages are dynamically loaded here -->
+        <main
+            id="app-content"
+            class="p-8 flex-grow container mx-auto max-w-4xl bg-white shadow-sm rounded-lg mt-6"
+        ></main>
+
+        <!-- Script load order matters -->
+        <script src="https://unpkg.com/page/page.js"></script>
+        <script src="i18n.js"></script>
+        <script src="store.js" defer></script>
+        <script src="app.js" defer></script>
+    </body>
+</html>

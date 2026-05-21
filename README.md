@@ -61,7 +61,14 @@ In the era of AI-assisted coding (e.g., Cursor, Copilot, Claude Engineer), Lite-
 You can run a local static server instantly using any of the following methods:
 
 * **VS Code**: Install the **Live Server** extension, right-click `index.html`, and select **Open with Live Server**.
-* **Node.js**: Run `npx serve` in your project folder.
+* **Node.js**: Run `npx serve -s` in your project folder.
+  > [!IMPORTANT]
+  > When using `npx serve -s` (SPA mode), you **must** disable `cleanUrls` in a `serve.json` file in your folder, otherwise it redirects `.html` page template requests and causes recursive nesting. Create `serve.json` with:
+  > ```json
+  > {
+  >   "cleanUrls": false
+  > }
+  > ```
 * **Python**: Run `python -m http.server 8000` in your project folder.
 * **PHP**: Run `php -S localhost:8000` in your project folder.
 
@@ -76,7 +83,7 @@ template/
     └── about.html
 ```
 
-> No `npm install`. No config files. Just run a simple static server and code.
+> No `npm install`. No config files (unless using `npx serve`). Just run a simple static server and code.
 
 ---
 
@@ -86,7 +93,10 @@ template/
 |---|---|---|
 | [01-counter](examples/01-counter/) | Signal basics, shared state across pages | [Open](examples/01-counter/index.html) |
 | [02-todo](examples/02-todo/) | Complex state using Signals, state persistence (localStorage) | [Open](examples/02-todo/index.html) |
+| [03-memo (Tutorial)](examples/03-memo/) | Step-by-step beginner's tutorial: custom routing, signals, inputs | [Open](examples/03-memo/index.html) |
 
+> [!TIP]
+> If you are new to Lite-SPA, check out the **[03-memo Step-by-Step Tutorial](examples/03-memo/README.md)** (or the Korean version: **[README.ko.md](examples/03-memo/README.ko.md)**). It explains how to build a new page and manage state from scratch!
 
 ---
 
