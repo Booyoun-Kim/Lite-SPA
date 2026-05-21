@@ -8,6 +8,23 @@
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- DOMPurify (XSS Sanitizer) -->
+    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
+
+    <!-- Prevent FOUC (Flash of Unstyled Content) with Tailwind CDN -->
+    <style>
+        body { opacity: 0; transition: opacity 0.15s ease-in; }
+        body.tailwind-ready { opacity: 1; }
+    </style>
+    <script>
+        window.tailwind = {
+            ready: () => {
+                document.body.classList.add('tailwind-ready');
+            }
+        };
+        setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+    </script>
+
     <!-- State management: expose signals-core to window.Signals -->
     <script type="module">
         import { signal, computed, effect }

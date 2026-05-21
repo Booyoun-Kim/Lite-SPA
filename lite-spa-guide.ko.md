@@ -81,6 +81,21 @@ my-app/
     <!-- 스타일 -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- XSS 방어용 DOMPurify CDN -->
+    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
+
+    <!-- Tailwind FOUC 방지 -->
+    <style>
+        body { opacity: 0; transition: opacity 0.15s ease-in; }
+        body.tailwind-ready { opacity: 1; }
+    </style>
+    <script>
+        window.tailwind = {
+            ready: () => document.body.classList.add('tailwind-ready')
+        };
+        setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+    </script>
+
     <!-- 상태 관리: signals-core를 window.Signals에 노출 -->
     <script type="module">
         import { signal, computed, effect }
@@ -152,8 +167,14 @@ const loadedPages = new Set();
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
-    document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
+    const rawHtml = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    
+    // XSS 방어용 sanitize
+    const cleanHtml = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
+        : rawHtml;
+
+    document.getElementById('app-content').insertAdjacentHTML('beforeend', cleanHtml);
     loadedPages.add(pageId);
 }
 
@@ -369,9 +390,15 @@ async function ensurePageLoaded(pageId) {
     const response = await fetch(`pages/${pageId}.html`);
     if (!response.ok) throw new Error(`페이지 없음: ${pageId}`);
 
-    const html = await response.text();
+    const rawHtml = await response.text();
+    
+    // XSS 방어용 소독 처리
+    const cleanHtml = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
+        : rawHtml;
+
     document.getElementById('app-content')
-        .insertAdjacentHTML('beforeend', html);
+        .insertAdjacentHTML('beforeend', cleanHtml);
 
     // 번역 적용
     translateElement(document.getElementById(`page-${pageId}`));
@@ -804,6 +831,41 @@ Lite-SPA는 signals의 **정밀 타겟 업데이트**로 같은 목표를 달성
 
 클라이언트 사이드 렌더링만 지원합니다. SEO가 중요한 퍼블릭 콘텐츠 페이지에는 맞지 않습니다.
 다만 **관리자 패널, 인증 후 대시보드**처럼 로그인 후 접근하는 화면엔 SEO가 불필요합니다.
+
+### Q. insertAdjacentHTML로 주입하면 XSS 공격에 취약하지 않나요?
+
+매우 날카로운 질문입니다! Lite-SPA는 이에 대비해 **DOMPurify**를 통한 XSS 쉴드를 기본 적용합니다.
+1. `index.html`에 DOMPurify CDN을 연동합니다.
+2. `app.js`에서 페이지 조각을 삽입하기 전에 `DOMPurify.sanitize()` 처리를 거칩니다.
+3. 사용자 입력을 화면에 렌더링할 때는 절대 `innerHTML`을 사용하지 않고 DOM 엘리먼트의 `.textContent`에 값을 바인딩하여 브라우저 수준에서 강제로 이스케이프되도록 규정합니다.
+
+### Q. Tailwind Play CDN을 쓸 때 화면이 깜빡거리는 현상(FOUC)은 어떻게 해결하나요?
+
+Tailwind CDN이 HTML을 분석하고 스타일을 인젝션하기까지 극히 짧은 순간 스타일이 풀려 보이는 현상이 발생할 수 있습니다.
+* **해결법**: `index.html`에 `body { opacity: 0; }` 스타일을 미리 정의해 둔 다음, Tailwind CDN 컴파일 완료 시점인 `window.tailwind.ready` 이벤트 콜백에서 `body`에 `.tailwind-ready` 클래스를 추가하여 `opacity: 1`로 부드럽게 페이드인합니다.
+
+### Q. 대규모 프로젝트에서 컴포넌트 간 ID 충돌과 CSS 스타일 오염은 어떻게 방어하나요?
+
+대규모 협업이나 공통 컴포넌트 관리가 필요할 때는 브라우저 표준인 **Web Components(Shadow DOM)**를 부분 도입하면 빌드 도구 없이도 완벽한 CSS/DOM 샌드박스를 구성할 수 있습니다.
+* **Shadow DOM 사용 예시**:
+  ```js
+  class PrimaryButton extends HTMLElement {
+      constructor() {
+          super();
+          this.attachShadow({ mode: 'open' });
+      }
+      connectedCallback() {
+          this.shadowRoot.innerHTML = `
+              <style>
+                  button { background: #3b82f6; color: white; border-radius: 4px; padding: 8px 16px; }
+              </style>
+              <button><slot></slot></button>
+          `;
+      }
+  }
+  customElements.define('primary-button', PrimaryButton);
+  ```
+* 일반적인 페이지 선택 시에는 `document` 범위로 요소를 쿼리하지 않고, 특정 컴포넌트의 루트 영역(`pageRoot.querySelector('.btn')`)으로 검색 범위를 제한하는 룰을 준수합니다.
 
 ### Q. TypeScript를 쓸 수 없나요?
 

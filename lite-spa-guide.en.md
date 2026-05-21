@@ -81,6 +81,21 @@ my-app/
     <!-- Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- DOMPurify CDN for XSS protection -->
+    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
+
+    <!-- Prevent FOUC (Flash of Unstyled Content) with Tailwind CDN -->
+    <style>
+        body { opacity: 0; transition: opacity 0.15s ease-in; }
+        body.tailwind-ready { opacity: 1; }
+    </style>
+    <script>
+        window.tailwind = {
+            ready: () => document.body.classList.add('tailwind-ready')
+        };
+        setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+    </script>
+
     <!-- State management: expose signals-core to window.Signals -->
     <script type="module">
         import { signal, computed, effect }
@@ -152,8 +167,14 @@ const loadedPages = new Set();
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
-    document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
+    const rawHtml = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    
+    // Sanitize raw HTML to prevent XSS attacks
+    const cleanHtml = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
+        : rawHtml;
+
+    document.getElementById('app-content').insertAdjacentHTML('beforeend', cleanHtml);
     loadedPages.add(pageId);
 }
 
@@ -369,9 +390,15 @@ async function ensurePageLoaded(pageId) {
     const response = await fetch(`pages/${pageId}.html`);
     if (!response.ok) throw new Error(`Page not found: ${pageId}`);
 
-    const html = await response.text();
+    const rawHtml = await response.text();
+    
+    // Sanitize raw HTML to prevent XSS attacks
+    const cleanHtml = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
+        : rawHtml;
+
     document.getElementById('app-content')
-        .insertAdjacentHTML('beforeend', html);
+        .insertAdjacentHTML('beforeend', cleanHtml);
 
     // Apply translations
     translateElement(document.getElementById(`page-${pageId}`));
@@ -800,10 +827,45 @@ No. The Virtual DOM exists to minimize expensive DOM access.
 Lite-SPA achieves the same goal through signals' **surgical targeted updates**.
 Only the effects subscribed to a changed signal re-run — there is no unnecessary re-render.
 
-### Q. What about SSR?
+### Q. SSR is not supported, right?
 
-Lite-SPA is client-side rendering only. It is not suitable for public content pages where SEO matters.
-However, **admin panels and authenticated dashboards** accessed after login don't need SEO at all.
+Only Client-Side Rendering is supported. It's not suitable for public content pages where SEO is critical.
+However, SEO is unnecessary for screens accessed post-login, like **admin panels or authentication-gated dashboards**.
+
+### Q. Isn't inserting HTML using `insertAdjacentHTML` vulnerable to XSS?
+
+An excellent question! Lite-SPA handles this risk by default by embedding **DOMPurify** to sanitize dynamic page fragments.
+1. Include the DOMPurify CDN script tag inside `index.html`.
+2. Cleanse raw HTML pages via `DOMPurify.sanitize()` prior to injecting them into the DOM within `app.js`.
+3. For user-provided input, avoid `innerHTML` entirely and write to the element's `.textContent` or `.innerText` property, ensuring automatic browser-level escaping.
+
+### Q. How can I fix FOUC (Flash of Unstyled Content) when using the Tailwind Play CDN?
+
+Because the Tailwind compiler operates at runtime, unstyled raw HTML might flash on the screen briefly before styles kick in.
+* **Solution**: In `index.html`, set the initial opacity of the body to `body { opacity: 0; }`. Then, use Tailwind's `ready()` callback hook to append a `.tailwind-ready` class (`opacity: 1`) to the body, yielding a smooth fade-in transitions.
+
+### Q. How do we prevent ID collisions and global CSS pollution in large projects?
+
+For collaborative environments, we can partially adopt the browser-standard **Web Components (Shadow DOM)** to achieve complete scoped CSS and DOM isolation without needing build systems.
+* **Shadow DOM Example**:
+  ```js
+  class PrimaryButton extends HTMLElement {
+      constructor() {
+          super();
+          this.attachShadow({ mode: 'open' });
+      }
+      connectedCallback() {
+          this.shadowRoot.innerHTML = `
+              <style>
+                  button { background: #3b82f6; color: white; border-radius: 4px; padding: 8px 16px; }
+              </style>
+              <button><slot></slot></button>
+          `;
+      }
+  }
+  customElements.define('primary-button', PrimaryButton);
+  ```
+* Inside standard pages, avoid query selecting globally (e.g. `document.querySelector`). Instead, restrict query selection to the page's root container (`pageRoot.querySelector('.btn')`).
 
 ### Q. Can I use TypeScript?
 
