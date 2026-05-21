@@ -93,9 +93,6 @@ my-app/
     <!-- Styling (Tailwind CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- DOMPurify CDN for XSS protection -->
-    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
-
     <!-- State management: expose signals-core to window.Signals -->
     <script type="module">
         import { signal, computed, effect }
@@ -167,14 +164,8 @@ const loadedPages = new Set();
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const rawHtml = await fetch(`pages/${pageId}.html`).then(r => r.text());
-    
-    // Sanitize raw HTML to prevent XSS attacks
-    const cleanHtml = typeof DOMPurify !== 'undefined'
-        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
-        : rawHtml;
-
-    document.getElementById('app-content').insertAdjacentHTML('beforeend', cleanHtml);
+    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
     loadedPages.add(pageId);
 }
 
@@ -390,15 +381,9 @@ async function ensurePageLoaded(pageId) {
     const response = await fetch(`pages/${pageId}.html`);
     if (!response.ok) throw new Error(`Page not found: ${pageId}`);
 
-    const rawHtml = await response.text();
-    
-    // Sanitize raw HTML to prevent XSS attacks
-    const cleanHtml = typeof DOMPurify !== 'undefined'
-        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
-        : rawHtml;
-
+    const html = await response.text();
     document.getElementById('app-content')
-        .insertAdjacentHTML('beforeend', cleanHtml);
+        .insertAdjacentHTML('beforeend', html);
 
     // Apply translations
     translateElement(document.getElementById(`page-${pageId}`));
@@ -834,10 +819,21 @@ However, SEO is unnecessary for screens accessed post-login, like **admin panels
 
 ### Q. Isn't inserting HTML using `insertAdjacentHTML` vulnerable to XSS?
 
-An excellent question! Lite-SPA handles this risk by default by embedding **DOMPurify** to sanitize dynamic page fragments.
-1. Include the DOMPurify CDN script tag inside `index.html`.
-2. Cleanse raw HTML pages via `DOMPurify.sanitize()` prior to injecting them into the DOM within `app.js`.
-3. For user-provided input, avoid `innerHTML` entirely and write to the element's `.textContent` or `.innerText` property, ensuring automatic browser-level escaping.
+An excellent question! Lite-SPA's template files (`pages/*.html`) are written by developers (a trusted source), so they do not need sanitization at fetch time. Loading them **raw** preserves all event handlers (like `onclick`).
+
+Instead, we enforce safety measures when displaying **untrusted user-generated content**:
+1. **Force `.textContent` for Text Rendering**: Never bind user inputs using `innerHTML`. Assigning to `.textContent` triggers native browser-level escaping automatically.
+2. **Use DOMPurify selectively for Dynamic HTML**: If you must render markup provided by users (e.g. rich text output), import and run **DOMPurify** at that specific insertion point.
+   * **Example**:
+     ```html
+     <!-- Load DOMPurify only when needed -->
+     <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
+     <script>
+         const rawUserInput = "<img src=x onerror=alert(1)>";
+         // Sanitize only at the specific injection site
+         document.getElementById('comment-box').innerHTML = DOMPurify.sanitize(rawUserInput);
+     </script>
+     ```
 
 ### Q. How can I fix FOUC (Flash of Unstyled Content) when using the Tailwind Play CDN?
 

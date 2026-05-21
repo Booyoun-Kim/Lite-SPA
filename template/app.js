@@ -7,14 +7,8 @@ const loadedPages = new Set();
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const rawHtml = await fetch(`pages/${pageId}.html`).then(r => r.text());
-    
-    // Sanitize HTML to prevent XSS attacks if DOMPurify is available
-    const cleanHtml = typeof DOMPurify !== 'undefined'
-        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
-        : rawHtml;
-        
-    document.getElementById('app-content').insertAdjacentHTML('beforeend', cleanHtml);
+    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
     
     // Apply translations on load
     translateElement(document.getElementById(`page-${pageId}`));

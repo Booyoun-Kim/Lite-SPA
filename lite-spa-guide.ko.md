@@ -93,9 +93,6 @@ my-app/
     <!-- 스타일 (Tailwind CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- XSS 방어용 DOMPurify CDN -->
-    <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
-
     <!-- 상태 관리: signals-core를 window.Signals에 노출 -->
     <script type="module">
         import { signal, computed, effect }
@@ -167,14 +164,8 @@ const loadedPages = new Set();
 
 async function ensurePageLoaded(pageId) {
     if (loadedPages.has(pageId)) return;
-    const rawHtml = await fetch(`pages/${pageId}.html`).then(r => r.text());
-    
-    // XSS 방어용 sanitize
-    const cleanHtml = typeof DOMPurify !== 'undefined'
-        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
-        : rawHtml;
-
-    document.getElementById('app-content').insertAdjacentHTML('beforeend', cleanHtml);
+    const html = await fetch(`pages/${pageId}.html`).then(r => r.text());
+    document.getElementById('app-content').insertAdjacentHTML('beforeend', html);
     loadedPages.add(pageId);
 }
 
@@ -390,15 +381,9 @@ async function ensurePageLoaded(pageId) {
     const response = await fetch(`pages/${pageId}.html`);
     if (!response.ok) throw new Error(`페이지 없음: ${pageId}`);
 
-    const rawHtml = await response.text();
-    
-    // XSS 방어용 소독 처리
-    const cleanHtml = typeof DOMPurify !== 'undefined'
-        ? DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['data-i18n'] })
-        : rawHtml;
-
+    const html = await response.text();
     document.getElementById('app-content')
-        .insertAdjacentHTML('beforeend', cleanHtml);
+        .insertAdjacentHTML('beforeend', html);
 
     // 번역 적용
     translateElement(document.getElementById(`page-${pageId}`));
@@ -834,10 +819,21 @@ Lite-SPA는 signals의 **정밀 타겟 업데이트**로 같은 목표를 달성
 
 ### Q. insertAdjacentHTML로 주입하면 XSS 공격에 취약하지 않나요?
 
-매우 날카로운 질문입니다! Lite-SPA는 이에 대비해 **DOMPurify**를 통한 XSS 쉴드를 기본 적용합니다.
-1. `index.html`에 DOMPurify CDN을 연동합니다.
-2. `app.js`에서 페이지 조각을 삽입하기 전에 `DOMPurify.sanitize()` 처리를 거칩니다.
-3. 사용자 입력을 화면에 렌더링할 때는 절대 `innerHTML`을 사용하지 않고 DOM 엘리먼트의 `.textContent`에 값을 바인딩하여 브라우저 수준에서 강제로 이스케이프되도록 규정합니다.
+매우 날카로운 질문입니다! Lite-SPA의 템플릿 파일(`pages/*.html`)은 개발자가 직접 작성하는 신뢰할 수 있는 소스코드이므로 로드 시점에 필터링할 필요가 없으며, 이벤트 핸들러(onclick 등)를 보존하기 위해 **원본 그대로 삽입**합니다.
+
+대신, **외부 사용자로부터 받은 비신뢰 데이터**를 처리할 때 다음과 같은 확실한 보안 대책을 준수합니다:
+1. **텍스트 렌더링은 `.textContent` 강제**: 유저 닉네임, 본문 등은 절대 `innerHTML`로 바인딩하지 않고, 브라우저 엔진이 자동 이스케이프를 수행하는 `.textContent`에 대입합니다.
+2. **동적 HTML이 불가피한 경우에만 DOMPurify 사용**: 사용자 입력에 마크업을 허용해야 하는 경우(예: 웹 에디터 결과물 렌더링)에 한해, 해당 바인딩 지점에서 **DOMPurify**를 선별 적용하여 소독합니다.
+   * **예제**:
+     ```html
+     <!-- 필요 시점에만 DOMPurify 로드 -->
+     <script src="https://unpkg.com/dompurify@3.0.8/dist/purify.min.js"></script>
+     <script>
+         const rawUserInput = "<img src=x onerror=alert(1)>";
+         // 특정 주입 시점에만 정제하여 바인딩
+         document.getElementById('comment-box').innerHTML = DOMPurify.sanitize(rawUserInput);
+     </script>
+     ```
 
 ### Q. Tailwind Play CDN을 쓸 때 화면이 깜빡거리는 현상(FOUC)은 어떻게 해결하나요?
 
