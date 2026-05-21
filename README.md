@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 [![Dependencies](https://img.shields.io/badge/dependencies-~3KB-black)]()
 
+[English](README.md) | [한국어](README.ko.md)
+
 Build real SPAs with just an HTML file and JavaScript. No webpack. No `npm install`. No build step.
 
 ---
@@ -61,7 +63,6 @@ template/
 | Example | What it demonstrates | Live |
 |---|---|---|
 | [01-counter](examples/01-counter/) | Signal basics, shared state across pages | [Open](examples/01-counter/index.html) |
-| [02-todo](examples/02-todo/) | Array signals, `computed`, CRUD operations | [Open](examples/02-todo/index.html) |
 
 ---
 
@@ -100,8 +101,8 @@ async function renderPage(pageId) {
 
 ## Documentation
 
-- [Guide (English)](docs/guide.en.md)
-- [가이드 (한국어)](docs/guide.ko.md)
+- [Guide (English)](lite-spa-guide.en.md)
+- [가이드 (한국어)](lite-spa-guide.ko.md)
 
 ---
 

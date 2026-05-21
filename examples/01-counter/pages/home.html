@@ -1,0 +1,14 @@
+<div id="page-home" class="page-view">
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-4">Counter Demo (Home)</h1>
+    <p class="text-lg text-gray-600 mb-6">This page demonstrates sharing reactive state (signals) across different views of the SPA.</p>
+    
+    <div class="p-6 bg-blue-50 border border-blue-100 rounded-lg mb-6 flex flex-col items-center">
+        <span class="text-sm text-blue-600 font-semibold uppercase tracking-wider mb-1">Current Count</span>
+        <span data-count class="text-5xl font-black text-blue-900">0</span>
+    </div>
+
+    <div class="flex gap-4">
+        <button onclick="increment()" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow-sm transition-colors">+1 Increment</button>
+        <button onclick="navigateTo('about')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg shadow-sm transition-colors">Go to About →</button>
+    </div>
+</div>

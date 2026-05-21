@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite-SPA - Counter Example</title>
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- State management: expose signals-core to window.Signals -->
+    <script type="module">
+        import { signal, computed, effect }
+            from 'https://esm.sh/@preact/signals-core';
+        window.Signals = { signal, computed, effect };
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+    <!-- Navigation -->
+    <nav class="p-4 bg-white shadow-sm flex gap-4">
+        <button onclick="navigateTo('home')" class="text-blue-500 hover:text-blue-600 font-semibold">Home</button>
+        <button onclick="navigateTo('about')" class="text-blue-500 hover:text-blue-600 font-semibold">About</button>
+        <span class="ml-auto text-gray-500 text-sm flex items-center">Shared Count: <span data-count class="ml-1 font-bold text-gray-800">0</span></span>
+    </nav>
+
+    <!-- Pages are dynamically loaded here -->
+    <main id="app-content" class="p-8 flex-grow container mx-auto max-w-xl bg-white shadow-md rounded-lg mt-8"></main>
+
+    <!-- Script load order matters -->
+    <script src="https://unpkg.com/page/page.js"></script>
+    <script src="store.js" defer></script>
+    <script src="app.js" defer></script>
+</body>
+</html>

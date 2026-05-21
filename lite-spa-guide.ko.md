@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 ```html
 <div id="page-home" class="page-view">
     <h1>홈</h1>
-    <p>카운터: <span id="counter-display">0</span></p>
+    <p>카운터: <span data-count>0</span></p>
     <button onclick="increment()">+1</button>
     <button onclick="navigateTo('about')">소개 페이지로 →</button>
 </div>
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 ```html
 <div id="page-about" class="page-view hidden">
     <h1>소개</h1>
-    <p>홈에서 누른 카운터: <span id="counter-display-about">0</span></p>
+    <p>홈에서 누른 카운터: <span data-count>0</span></p>
     <button onclick="navigateTo('home')">← 홈으로</button>
 </div>
 ```
