@@ -53,7 +53,17 @@ In the era of AI-assisted coding (e.g., Cursor, Copilot, Claude Engineer), Lite-
 
 ## Quick Start
 
-Copy the `template/` folder and open `index.html` in a browser (or any static file server).
+1. Copy the `template/` folder to your project directory.
+2. Start a local static web server in that directory (required due to browser CORS policies blocking `fetch` requests on the `file://` protocol).
+
+### Running a Local Server
+
+You can run a local static server instantly using any of the following methods:
+
+* **VS Code**: Install the **Live Server** extension, right-click `index.html`, and select **Open with Live Server**.
+* **Node.js**: Run `npx serve` in your project folder.
+* **Python**: Run `python -m http.server 8000` in your project folder.
+* **PHP**: Run `php -S localhost:8000` in your project folder.
 
 ```
 template/
@@ -66,7 +76,7 @@ template/
     └── about.html
 ```
 
-> No `npm install`. No config files. Open and run.
+> No `npm install`. No config files. Just run a simple static server and code.
 
 ---
 
