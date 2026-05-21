@@ -25,6 +25,18 @@ Build real SPAs with just an HTML file and JavaScript. No webpack. No `npm insta
 | Indie hackers / solo devs | Start in seconds with CDN only |
 | Legacy project maintainers | Drop jQuery without adopting React |
 | Embedded web UI | IoT consoles, internal dashboards |
+| AI Coding Agents | Extremely "Agent-Friendly" due to zero build steps and high code density |
+
+### 🤖 Why Lite-SPA is Ideal for AI Agents (Agent-Friendly)
+
+In the era of AI-assisted coding (e.g., Cursor, Copilot, Claude Engineer), Lite-SPA provides an optimized environment for AI agents to read, write, and debug code:
+- **Zero Build Failures**: No Webpack, Vite, or TypeScript compilation means AI agents won't waste API tokens fixing package manager resolution errors or bundler configs.
+- **Ultra-Compact Context**: The entire app shell, routing, and state flow fit in a single folder. The agent can easily ingest the whole codebase at once, reducing hallucinations.
+- **Simple State Reasoning**: Preact Signals use synchronous `.value` updates. AI agents reason about this much better than React's asynchronous render cycle hook rules (e.g., stale closure issues, dependency arrays).
+- **Pure Web Standards**: Standard HTML templates and ESM are heavily represented in LLM training data, resulting in extremely clean and error-free code generation.
+
+> [!TIP]
+> This repository includes a [SKILL.md](SKILL.md) file. Feed it to your AI agent (or copy it into your `.cursorrules`/`.clinerules`) to immediately teach it the Lite-SPA design patterns and constraints.
 
 ## Stack
 
@@ -105,6 +117,7 @@ async function renderPage(pageId) {
 
 - [Guide (English)](lite-spa-guide.en.md)
 - [가이드 (한국어)](lite-spa-guide.ko.md)
+- [AI Agent Guide (SKILL.md)](SKILL.md)
 
 ---
 
