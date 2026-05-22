@@ -86,8 +86,17 @@ my-app/
     <script>
         window.tailwind = window.tailwind || {};
         window.tailwind.config = window.tailwind.config || {};
-        window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
-        setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+        const showBody = () => {
+            if (document.body) {
+                document.body.classList.add('tailwind-ready');
+            } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.body.classList.add('tailwind-ready');
+                });
+            }
+        };
+        window.tailwind.ready = showBody;
+        setTimeout(showBody, 500);
     </script>
 
     <!-- Styling (Tailwind CDN) -->
@@ -843,8 +852,17 @@ Because the Tailwind compiler operates at runtime, unstyled raw HTML might flash
   <script>
       window.tailwind = window.tailwind || {};
       window.tailwind.config = window.tailwind.config || {};
-      window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
-      setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+      const showBody = () => {
+          if (document.body) {
+              document.body.classList.add('tailwind-ready');
+          } else {
+              document.addEventListener('DOMContentLoaded', () => {
+                  document.body.classList.add('tailwind-ready');
+              });
+          }
+      };
+      window.tailwind.ready = showBody;
+      setTimeout(showBody, 500);
   </script>
   ```
 

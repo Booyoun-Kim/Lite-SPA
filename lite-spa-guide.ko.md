@@ -86,8 +86,17 @@ my-app/
     <script>
         window.tailwind = window.tailwind || {};
         window.tailwind.config = window.tailwind.config || {};
-        window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
-        setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+        const showBody = () => {
+            if (document.body) {
+                document.body.classList.add('tailwind-ready');
+            } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.body.classList.add('tailwind-ready');
+                });
+            }
+        };
+        window.tailwind.ready = showBody;
+        setTimeout(showBody, 500);
     </script>
 
     <!-- 스타일 (Tailwind CDN) -->
@@ -843,8 +852,17 @@ Tailwind CDN이 HTML을 분석하고 스타일을 인젝션하기까지 극히 �
   <script>
       window.tailwind = window.tailwind || {};
       window.tailwind.config = window.tailwind.config || {};
-      window.tailwind.ready = () => document.body.classList.add('tailwind-ready');
-      setTimeout(() => document.body.classList.add('tailwind-ready'), 500);
+      const showBody = () => {
+          if (document.body) {
+              document.body.classList.add('tailwind-ready');
+          } else {
+              document.addEventListener('DOMContentLoaded', () => {
+                  document.body.classList.add('tailwind-ready');
+              });
+          }
+      };
+      window.tailwind.ready = showBody;
+      setTimeout(showBody, 500);
   </script>
   ```
 

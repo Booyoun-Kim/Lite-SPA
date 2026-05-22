@@ -18,13 +18,17 @@
         <script>
             window.tailwind = window.tailwind || {};
             window.tailwind.config = window.tailwind.config || {};
-            window.tailwind.ready = () => {
-                document.body.classList.add("tailwind-ready");
+            const showBody = () => {
+                if (document.body) {
+                    document.body.classList.add("tailwind-ready");
+                } else {
+                    document.addEventListener("DOMContentLoaded", () => {
+                        document.body.classList.add("tailwind-ready");
+                    });
+                }
             };
-            setTimeout(
-                () => document.body.classList.add("tailwind-ready"),
-                500,
-            );
+            window.tailwind.ready = showBody;
+            setTimeout(showBody, 500);
         </script>
 
         <!-- Tailwind CSS (CDN) -->
