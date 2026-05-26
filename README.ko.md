@@ -87,6 +87,42 @@ template/
 
 ---
 
+## 배포 가이드 (Deployment)
+
+Single Page Application(SPA) 특성상, 정적 파일이 아닌 가상 라우팅 경로(예: `/dashboard`)로 직접 접속하거나 새로고침을 할 경우 서버에 해당 파일이 없어 404 에러가 발생합니다. 따라서 모든 가상 경로 요청을 `index.html`로 리다이렉트(재작성)하되, JS, CSS, HTML 템플릿, 이미지 등의 정적 리소스는 그대로 서빙되도록 설정해야 합니다.
+
+### AWS Amplify
+
+AWS Amplify 콘솔의 **Rewrites and redirects (재작성 및 리디렉션)** 규칙에 아래 설정을 추가합니다. 정적 리소스가 `index.html`로 덮어써져 발생하는 중복 렌더링이나 리소스 로드 오류를 방지해 줍니다.
+
+```json
+[
+  {
+    "source": "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webmanifest|html)$)([^.]+$)/>",
+    "target": "/index.html",
+    "status": "200"
+  }
+]
+```
+
+### Vercel
+
+프로젝트 루트 디렉토리에 `vercel.json` 파일을 생성하여 다음과 같이 설정합니다. 동적 HTML 템플릿 파일(`/pages/*.html`)의 파일 확장자가 누락되어 발생하는 무한 로딩/중첩 렌더링 문제를 방지하기 위해 `cleanUrls`를 비활성화하고, 가상 경로를 `index.html`로 리다이렉트합니다.
+
+```json
+{
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/((?!.*\\.(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webmanifest|html)$).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+---
+
 ## 예제 (Examples)
 
 | 예제 | 핵심 시연 내용 | 라이브 데모 |

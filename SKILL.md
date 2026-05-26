@@ -145,9 +145,9 @@ async function renderPage(pageId) {
 
 ---
 
-## 5. Local Server Configurations (SPA Fallbacks)
+## 5. Server & Deployment Configurations (SPA Fallbacks)
 
-When serving a zero-build Lite-SPA, you must ensure your server correctly falls back to `index.html` on refresh without interfering with dynamic HTML template fetches.
+When serving or deploying a zero-build Lite-SPA, you must ensure your server correctly falls back to `index.html` on refresh without interfering with dynamic HTML template fetches.
 
 ### 5.1 Vercel `serve` (`npx serve -s`)
 Vercel's `serve` features **Clean URLs** by default, which strips `.html` extensions and redirects requests. This conflicts with dynamic page fetches (fetching `/pages/home.html` gets redirected to `/pages/home`, which then falls back to `index.html` in SPA mode, causing infinite HTML nesting).
@@ -163,6 +163,32 @@ Use `try_files` to serve files/directories, falling back to `/index.html`:
 ```nginx
 location / {
     try_files $uri $uri/ /index.html;
+}
+```
+
+### 5.3 AWS Amplify Deployment Rule
+In the AWS Amplify Console, navigate to **Rewrites and redirects** under your app settings and add the following rule:
+```json
+[
+  {
+    "source": "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webmanifest|html)$)([^.]+$)/>",
+    "target": "/index.html",
+    "status": "200"
+  }
+]
+```
+
+### 5.4 Vercel Deployment (`vercel.json`)
+Create a `vercel.json` file in the root of your project to disable `cleanUrls` and rewrite virtual routes to `index.html`:
+```json
+{
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/((?!.*\\.(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webmanifest|html)$).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
 ```
 

@@ -87,6 +87,42 @@ template/
 
 ---
 
+## Deployment
+
+When deploying a Single Page Application (SPA) to a hosting platform, directly accessing or refreshing a virtual route (e.g., `/dashboard`) will result in a 404 error because the file does not physically exist on the server. You must configure rewrite rules to redirect all virtual routes to `index.html` while allowing static assets (JS, CSS, HTML templates, images, etc.) to load normally.
+
+### AWS Amplify
+
+In the AWS Amplify Console, navigate to **Rewrites and redirects** under your app settings and add the following rule:
+
+```json
+[
+  {
+    "source": "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webmanifest|html)$)([^.]+$)/>",
+    "target": "/index.html",
+    "status": "200"
+  }
+]
+```
+
+### Vercel
+
+Create a `vercel.json` file in the root of your project to disable `cleanUrls` (which prevents automatic `.html` extension stripping that breaks dynamic template fetching) and rewrite virtual routes to `index.html`:
+
+```json
+{
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/((?!.*\\.(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webmanifest|html)$).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+---
+
 ## Examples
 
 | Example | What it demonstrates | Live |
