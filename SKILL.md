@@ -90,13 +90,24 @@ document.getElementById('counter-btn').addEventListener('click', () => {
 
 Routes are defined using `page.js`. Pages are lazily fetched, cached in memory, and toggle visibility.
 
+> [!WARNING]
+> **Trailing Slash Matching Issue**: `page.js` uses `path-to-regexp` internally. Registering a route with `/about/?` does NOT make the slash optional; instead, it makes the letter `t` optional and requires the slash. To prevent routing mismatches, always register routes with and without trailing slashes, or use a helper function.
+
 ```javascript
 // Defining routes in app.js
 import page from 'https://esm.sh/page';
 
-page('/', () => renderPage('home'));
-page('/about', () => renderPage('about'));
-page('*', () => renderPage('404'));
+// Route helper to handle optional trailing slashes
+function route(path, handler) {
+  page(path, handler);
+  if (path !== '/' && !path.endsWith('/')) {
+    page(path + '/', handler);
+  }
+}
+
+route('/', () => renderPage('home'));
+route('/about', () => renderPage('about'));
+route('*', () => renderPage('404'));
 page.start();
 ```
 

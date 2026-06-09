@@ -65,9 +65,17 @@ function toggleLanguage() {
     s.currentLang.value = s.currentLang.value === 'EN' ? 'KO' : 'EN';
 }
 
+// Route definitions helper to handle optional trailing slashes
+function route(path, handler) {
+    page(path, handler);
+    if (path !== '/' && !path.endsWith('/')) {
+        page(path + '/', handler);
+    }
+}
+
 // Route definitions
-page('/',          () => renderPage('home'));
-page('/about',     () => renderPage('about'));
+route('/',          () => renderPage('home'));
+route('/about',     () => renderPage('about'));
 
 document.addEventListener('DOMContentLoaded', () => {
     page(); // Start router
