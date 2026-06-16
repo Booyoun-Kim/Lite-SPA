@@ -801,6 +801,39 @@ const theme    = persistedSignal('theme', 'light');
 const lastPage = persistedSignal('lastPage', 'home');
 ```
 
+#### 선언적 반응형 바인딩 (Declarative Reactive Binding)
+
+직접 DOM을 찾아 제어하는 명령형 코드의 증가를 방지하기 위해, HTML에 `data-bind-*` 속성을 선언하고 이를 Signal과 자동으로 연결하는 초경량 바인더 유틸리티(`binder.js`)를 제공합니다.
+
+* **HTML 사용 예시 (순수 HTML 유지)**
+  ```html
+  <div class="profile-card">
+    <!-- Store.username 상태가 바뀌면 자동으로 텍스트 갱신 -->
+    <h3 data-bind-text="username">Guest</h3>
+    
+    <!-- Store.isPremium 상태에 따라 premium 클래스 토글 -->
+    <div class="badge" data-bind-class="premium:isPremium">Premium User</div>
+    
+    <!-- Store.isSubmitting 상태에 따라 버튼 활성/비활성화 -->
+    <button data-bind-attr="disabled:isSubmitting" onclick="submitProfile()">수정</button>
+  </div>
+  ```
+
+* **동적 리스트 바인딩 및 미세 업데이트 (`bindList`)**
+  전체 HTML 문자열을 `innerHTML`에 대입하여 렌더링하면 포커스 유失 및 성능 저하가 일어납니다. 아이디(key) 기반으로 실제 DOM 노드를 재사용하면서 필요한 리스트 데이터만 미세하게 추가/삭제/수정(Reconciliation)하도록 `bindList` 함수를 사용합니다.
+  ```js
+  // HTML 문자열 템플릿
+  const itemTemplate = (todo) => `
+    <div class="todo-item ${todo.completed ? 'done' : ''}">
+      <span class="item-title">${todo.text}</span>
+      <button onclick="toggleTodo('${todo.id}')">V</button>
+    </div>
+  `;
+
+  // Store.todos 리스트와 container-todo-list 엘리먼트 바인딩 (focus 및 스크롤 보존)
+  Binder.bindList('container-todo-list', Store.todos, itemTemplate);
+  ```
+
 ---
 
 ## 6. FAQ / React와 비교

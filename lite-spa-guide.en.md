@@ -801,6 +801,39 @@ const theme    = persistedSignal('theme', 'light');
 const lastPage = persistedSignal('lastPage', 'home');
 ```
 
+#### Declarative Reactive Binding
+
+To avoid imperative DOM querying code, you can use the declarative reactive bindings helper (`binder.js`) to link DOM elements directly to Store signals using HTML `data-bind-*` attributes.
+
+* **HTML Usage Example (Keep HTML clean and native)**
+  ```html
+  <div class="profile-card">
+    <!-- Automatically sync text content with Store.username signal -->
+    <h3 data-bind-text="username">Guest</h3>
+    
+    <!-- Automatically toggle "premium" class when Store.isPremium changes -->
+    <div class="badge" data-bind-class="premium:isPremium">Premium User</div>
+    
+    <!-- Automatically toggle the disabled attribute based on Store.isSubmitting -->
+    <button data-bind-attr="disabled:isSubmitting" onclick="submitProfile()">Update</button>
+  </div>
+  ```
+
+* **Dynamic List Binding & Micro updates (`bindList`)**
+  Replacing the entire container's HTML with `innerHTML` causes performance issues and loses browser focus/scroll. Use `bindList` to reconcile children nodes based on item identifiers (`id`), reusing unchanged elements and updating only modified nodes.
+  ```js
+  // HTML template string
+  const itemTemplate = (todo) => `
+    <div class="todo-item ${todo.completed ? 'done' : ''}">
+      <span class="item-title">${todo.text}</span>
+      <button onclick="toggleTodo('${todo.id}')">V</button>
+    </div>
+  `;
+
+  // Bind Store.todos signal to 'container-todo-list' element (retains scroll and focus)
+  Binder.bindList('container-todo-list', Store.todos, itemTemplate);
+  ```
+
 ---
 
 ## 6. FAQ / Comparison with React

@@ -52,8 +52,15 @@ async function ensurePageLoaded(pageId) {
 
 async function renderPage(pageId) {
     await ensurePageLoaded(pageId);
+    const pageEl = document.getElementById(`page-${pageId}`);
     document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-    document.getElementById(`page-${pageId}`)?.classList.remove('hidden');
+    pageEl?.classList.remove('hidden');
+    
+    // Auto bind store state to data-bind attributes on the loaded page
+    if (window.Binder) {
+        window.Binder.initBindings(pageEl);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

@@ -86,6 +86,34 @@ document.getElementById('counter-btn').addEventListener('click', () => {
 });
 ```
 
+### 4.1.2 Declarative Reactive Binding (`binder.js`)
+
+To scale without cluttering `app.js` with DOM operations, use declarative attributes in HTML instead of manual DOM-targeting `effect` calls where appropriate:
+
+* **Text Binding**: Use `data-bind-text="storeKey"`.
+* **Class Toggling**: Use `data-bind-class="className:storeKey"`.
+* **Attribute Binding**: Use `data-bind-attr="attributeName:storeKey"`.
+
+```html
+<!-- HTML template -->
+<div class="user-card">
+  <p data-bind-text="username"></p>
+  <span data-bind-class="hidden:isLoggedIn">Please login</span>
+  <button data-bind-attr="disabled:isSubmitting">Submit</button>
+</div>
+```
+
+`Binder.initBindings(rootElement)` is automatically called when pages are rendered in `app.js`.
+
+### 4.1.3 Reconciled List Binding (`bindList`)
+
+Avoid replacing lists using complete `innerHTML` updates which break input focus or scrolling. Use `Binder.bindList`:
+
+```javascript
+const template = (item) => `<li class="item">${item.name}</li>`;
+Binder.bindList('list-container-id', Store.items, template);
+```
+
 ### 4.2 Routing and Page Lifecycle (`page.js` + Dynamic Fetching)
 
 Routes are defined using `page.js`. Pages are lazily fetched, cached in memory, and toggle visibility.
