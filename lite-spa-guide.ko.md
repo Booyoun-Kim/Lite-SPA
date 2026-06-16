@@ -820,7 +820,7 @@ const lastPage = persistedSignal('lastPage', 'home');
   ```
 
 * **동적 리스트 바인딩 및 미세 업데이트 (`bindList`)**
-  전체 HTML 문자열을 `innerHTML`에 대입하여 렌더링하면 포커스 유失 및 성능 저하가 일어납니다. 아이디(key) 기반으로 실제 DOM 노드를 재사용하면서 필요한 리스트 데이터만 미세하게 추가/삭제/수정(Reconciliation)하도록 `bindList` 함수를 사용합니다.
+  전체 HTML 문자열을 `innerHTML`에 대입하여 렌더링하면 포커스 유실 및 성능 저하가 일어납니다. 아이디(key) 기반으로 실제 DOM 노드를 재사용하면서 필요한 리스트 데이터만 미세하게 추가/삭제/수정(Reconciliation)하도록 `bindList` 함수를 사용합니다.
   ```js
   // HTML 문자열 템플릿
   const itemTemplate = (todo) => `
